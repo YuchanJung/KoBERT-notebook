@@ -17,7 +17,6 @@ def predict(predict_sentence):
     tokenizer = KoBERTTokenizer.from_pretrained('skt/kobert-base-v1', return_dict=False)
     vocab = nlp.vocab.BERTVocab.from_sentencepiece(tokenizer.vocab_file, padding_token="[PAD]")
 
-    tokenizer = KoBERTTokenizer.from_pretrained('skt/kobert-base-v1', return_dict=False)
     tok = tokenizer.tokenize
 
     data = [predict_sentence, '0']
@@ -36,7 +35,6 @@ def predict(predict_sentence):
         label = label.long().to(device)
 
         out = model(token_ids, valid_length, segment_ids)
-
 
         test_eval=[]
         for i in out:
