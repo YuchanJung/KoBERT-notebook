@@ -12,13 +12,17 @@ from transformers import BertModel
 from kobert_tokenizer import KoBERTTokenizer
 from data import BERTDataset
 
+device = torch.device("cuda:0")
+
+tokenizer = KoBERTTokenizer.from_pretrained('skt/kobert-base-v1', return_dict=False)
+vocab = nlp.vocab.BERTVocab.from_sentencepiece(tokenizer.vocab_file, padding_token="[PAD]")
+tok = tokenizer.tokenize
+
+bertmodel = BertModel.from_pretrained('skt/kobert-base-v1', return_dict=False)
+model = BERTClassifier(bertmodel, dr_rate=0.5).to(device)
+model.load_state_dict(torch.load(f'./model/model_train85_test_76.pt'))
 
 def predict(predict_sentence):
-    tokenizer = KoBERTTokenizer.from_pretrained('skt/kobert-base-v1', return_dict=False)
-    vocab = nlp.vocab.BERTVocab.from_sentencepiece(tokenizer.vocab_file, padding_token="[PAD]")
-
-    tok = tokenizer.tokenize
-
     data = [predict_sentence, '0']
     dataset_another = [data]
 
@@ -48,13 +52,11 @@ def predict(predict_sentence):
             elif np.argmax(logits) == 2:
                 test_eval.append("IMMORAL_MAX")
 
-        print(">> 입력하신 내용에서 " + test_eval[0] + " 이/가 느껴집니다.")
+        return test_eval[0]
     
-if __name__ == "__main__":
-    device = torch.device("cuda:0")
-    bertmodel = BertModel.from_pretrained('skt/kobert-base-v1', return_dict=False)
-    model = BERTClassifier(bertmodel, dr_rate=0.5).to(device)
-    model.load_state_dict(torch.load(f'./model/model_train85_test_76.pt'))
+
+while True:
     sentence = input("Input: ")
-    predict(sentence)
-    print()
+    if sentence == '0': break
+    output = predict(sentence)
+    print(f">> 입력하신 내용에서 {output}이/가 느껴집니다.")
