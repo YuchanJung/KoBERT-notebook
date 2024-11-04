@@ -1,5 +1,6 @@
 import numpy as np
 import gluonnlp as nlp
+from torch.utils.data import Dataset
 
 class BERTDataset(Dataset):
     def __init__(self, dataset, sent_idx, label_idx, bert_tokenizer, vocab, max_len,
