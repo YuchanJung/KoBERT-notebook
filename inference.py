@@ -13,6 +13,7 @@ from kobert_tokenizer import KoBERTTokenizer
 from data import BERTDataset
 
 device = torch.device("cuda:0")
+# device = torch.device("cpu")
 
 tokenizer = KoBERTTokenizer.from_pretrained('skt/kobert-base-v1', return_dict=False)
 vocab = nlp.vocab.BERTVocab.from_sentencepiece(tokenizer.vocab_file, padding_token="[PAD]")
@@ -20,7 +21,7 @@ tok = tokenizer.tokenize
 
 bertmodel = BertModel.from_pretrained('skt/kobert-base-v1', return_dict=False)
 model = BERTClassifier(bertmodel, dr_rate=0.5).to(device)
-model.load_state_dict(torch.load(f'./model/model_train85_test_76.pt'))
+model.load_state_dict(torch.load(f'./model/model_train85_test_76.pt', map_location=device))
 
 def predict(predict_sentence):
     data = [predict_sentence, '0']
