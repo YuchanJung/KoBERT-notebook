@@ -12,21 +12,22 @@ from transformers import BertModel
 from kobert_tokenizer import KoBERTTokenizer
 from data import BERTDataset
 
-device = torch.device("cuda:0")
-# device = torch.device("cpu")
-
-tokenizer = KoBERTTokenizer.from_pretrained('skt/kobert-base-v1', return_dict=False)
-vocab = nlp.vocab.BERTVocab.from_sentencepiece(tokenizer.vocab_file, padding_token="[PAD]")
-tok = tokenizer.tokenize
-
 bertmodel = BertModel.from_pretrained('skt/kobert-base-v1', return_dict=False)
-model = BERTClassifier(bertmodel, dr_rate=0.5).to(device)
-model.load_state_dict(torch.load(f'./model/model_train85_test_76.pt', map_location=device))
+tokenizer = KoBERTTokenizer.from_pretrained('skt/kobert-base-v1')
+vocab = nlp.vocab.BERTVocab.from_sentencepiece(tokenizer.vocab_file, padding_token="[PAD]")
 
 def predict(predict_sentence):
+    # device = torch.device("cuda:0")
+    device = torch.device("cpu")
+    model = BERTClassifier(bertmodel, dr_rate=0.5).to(device)
+    model.load_state_dict(torch.load(f'./model/model_train85_test_76.pt', map_location=device), strict=False)
+
+    tokenizer = KoBERTTokenizer.from_pretrained('skt/kobert-base-v1', return_dict=False)
+    tok = tokenizer.tokenize
+
     data = [predict_sentence, '0']
     dataset_another = [data]
-
+    
     another_test = BERTDataset(dataset_another, 0, 1, tok, vocab, config.max_len, True, False)
     test_dataloader = torch.utils.data.DataLoader(another_test, batch_size=config.batch_size, num_workers=5)
 
